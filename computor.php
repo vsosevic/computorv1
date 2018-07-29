@@ -1,5 +1,7 @@
 <?php 
 
+const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
+
 // if (!has_args_errors($argv)) {
 // 	echo "no errors";
 // }
@@ -13,7 +15,7 @@ $poly = [
 // echo (int) $poly["sign"] *  (float) $poly["coef"];
 
 // >>> This section should be deleted!!! >>>
-$poly = "5 * X - 4*X^2+9666+.663 * x^2        =1*X^0+x-3*x+3*x^1+6+ 4*x^1 +3x";
+$poly = "3+5 * X - 4*X^2+9666+.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 +3x+x+x+3x+x^+3x+4+5";
 
 $argv = $poly;
 
@@ -46,10 +48,8 @@ function argv_has_errors($argv) {
 	}
 
 	// Formatting is wrong.
-    $term_pattern = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
-
-    $left_part_cleaned = trim(preg_replace($term_pattern, '',$exploded_parts[0]));
-    $right_part_cleaned = trim(preg_replace($term_pattern, '',$exploded_parts[1]));
+    $left_part_cleaned = trim(preg_replace(TERM_REGULAR_PATTERN, '',$exploded_parts[0]));
+    $right_part_cleaned = trim(preg_replace(TERM_REGULAR_PATTERN, '',$exploded_parts[1]));
 
     if (!empty($left_part_cleaned) || !empty($right_part_cleaned)) {
         $error_message .= "Something wrong with equation." . PHP_EOL;
@@ -80,8 +80,53 @@ function argv_has_errors($argv) {
 
 if (!argv_has_errors($argv)) {
 	$poly = strtoupper(str_replace(' ', '', $argv)); // $argv[1] - in the future for command line
+    $poly_exploded = explode('=', $poly);
+
+    $poly_left = $poly_exploded[0];
+    $poly_right = $poly_exploded[1];
+
+//    $left_terms = create_poly_array($poly_left);
+    $right_terms = create_poly_array($poly_right);
+
     $test = 1;
 }
 
+function create_poly_array($poly) {
+    $terms_array = [];
+    preg_match_all(TERM_REGULAR_PATTERN, $poly,$terms_array);
+
+    $terms_array = array_filter($terms_array[0]);
+
+    $term_arr = [];
+
+    foreach ($terms_array as $term) {
+        $sign = 1;
+        $coef = 0;
+        $degree = 0;
+
+        // Define sign
+        if (strpos($term, '-') !== false) {
+            $sign = -1;
+        }
+
+        // Define number
+        preg_match('/(\d+)?\.?\d+/', $term, $matched_number);
+        $coef = empty($matched_number) ? 1 : (float) $matched_number[0];
+
+        //Define degree
+        preg_match('/X[\^]?(\d+)?/', $term,$matched_degree);
+        if (!empty($matched_degree)) {
+            $degree = isset($matched_degree[1]) ? $matched_degree[1] : 1;
+        }
+
+        $term_arr[] = [
+            'sign' => $sign,
+            'coef' => $coef,
+            'degree' => $degree,
+        ];
+    }
+
+    return $term_arr;
+}
 
 
