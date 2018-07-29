@@ -17,7 +17,8 @@ $poly = "5 * X - 4*X^2+9666+.663 * x^2        =1*X^0+x-3*x+3*x^1+6+ 4*x^1";
 $poly2 = "5 + 4 * X + X^2= X^2";
 
 
-function has_args_errors($argv) {
+
+function argv_has_errors($argv) {
 
 	// More than 1 argv supplied
 //	if (count($argv) > 2 || count($argv) < 2) {
@@ -37,6 +38,7 @@ function has_args_errors($argv) {
 
 	// One side of equation has no arguments
 	$exploded_parts = explode('=', $argv);
+
 	if (empty(trim($exploded_parts[0])) || empty(trim($exploded_parts[1]))) {
 		echo "Equation should contain smth on each side";
 
@@ -56,6 +58,10 @@ function has_args_errors($argv) {
 	}
 
 	return FALSE;
+}
+
+if (!argv_has_errors($poly)) {
+	
 }
 
 
