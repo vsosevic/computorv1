@@ -94,6 +94,8 @@ if (!argv_has_errors($argv)) {
 
     $left_terms = create_reduced_poly_array($poly_left);
     $right_terms = create_reduced_poly_array($poly_right);
+  
+  negate_terms_array($right_terms);
 
     $test = 1;
 }
@@ -105,8 +107,8 @@ function create_reduced_poly_array($poly) {
     preg_match_all(TERM_REGULAR_PATTERN, $poly,$terms_array_raw);
 
     $terms_array_raw = array_filter($terms_array_raw[0]);
-
-    $term_array_reduceday_reduced = [];
+  
+  $term_array_reduced = [];
 
     foreach ($terms_array_raw as $term) {
         // Default values
@@ -130,10 +132,12 @@ function create_reduced_poly_array($poly) {
             $current_degree = isset($matched_degree[1]) ? (int) $matched_degree[1] : 1;
         }
 
+        // Don't save zero terms
         if ($current_coef == 0) {
           continue;
         }
         
+        // Reduced form or just new array.
         if (!empty($term_array_reduced[$current_degree])) {
           $old_coef_signed = $term_array_reduced[$current_degree]['coef'] * $term_array_reduced[$current_degree]['sign'];
           
@@ -166,5 +170,10 @@ function create_reduced_poly_array($poly) {
     return $term_array_reduced;
 }
 
+function negate_terms_array(&$terms_array) {
+  foreach ($terms_array as &$term) {
+    $term['sign'] *= -1;
+  }
+}
 
 
