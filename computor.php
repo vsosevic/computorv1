@@ -15,7 +15,7 @@ $poly = [
 // echo (int) $poly["sign"] *  (float) $poly["coef"];
 
 // >>> This section should be deleted!!! >>>
-$poly = "0x+5 * X - 4*X^2+9666+.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 +3x+x+x+3x+x^+3x+4+5";
+$poly = "0x+5 * X - 4*X^2+9666 -.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 -3x+x+x+3x+x^-3x+4-5";
 
 $argv = $poly;
 
@@ -92,56 +92,78 @@ if (!argv_has_errors($argv)) {
     $poly_left = $poly_exploded[0];
     $poly_right = $poly_exploded[1];
 
-    $left_terms = create_poly_array($poly_left);
-    $right_terms = create_poly_array($poly_right);
+    $left_terms = create_reduced_poly_array($poly_left);
+    $right_terms = create_reduced_poly_array($poly_right);
 
     $test = 1;
 }
 
-function create_poly_array($poly) {
+function create_reduced_poly_array($poly) {
   
-    $terms_array = [];
+    $terms_array_raw = [];
     
-    preg_match_all(TERM_REGULAR_PATTERN, $poly,$terms_array);
+    preg_match_all(TERM_REGULAR_PATTERN, $poly,$terms_array_raw);
 
-    $terms_array = array_filter($terms_array[0]);
+    $terms_array_raw = array_filter($terms_array_raw[0]);
 
-    $term_arr = [];
+    $term_array_reduceday_reduced = [];
 
-    foreach ($terms_array as $term) {
+    foreach ($terms_array_raw as $term) {
         // Default values
-        $sign = 1;
-        $coef = 0;
-        $degree = 0;
+        $current_sign = 1;
+        $current_coef = 0;
+        $current_degree = 0;
 
         // Define sign
         if (strpos($term, '-') !== false) {
-            $sign = -1;
+            $current_sign = -1;
         }
 
         // Define number
         preg_match('/(\d+)?\.?\d+/', $term, $matched_number); // searching for >>>3.3<<< * X
-        $coef = empty($matched_number) ? 1 : (float) $matched_number[0];
+        $current_coef = empty($matched_number) ? 1 : (float) $matched_number[0];
 
         //Define degree
         preg_match('/X[\^]?(\d+)?/', $term,$matched_degree); // searching for X ^ >>>2<<<
         
         if (!empty($matched_degree)) {
-            $degree = isset($matched_degree[1]) ? (int) $matched_degree[1] : 1;
+            $current_degree = isset($matched_degree[1]) ? (int) $matched_degree[1] : 1;
         }
 
-        if ($coef == 0) {
+        if ($current_coef == 0) {
           continue;
         }
         
-        $term_arr[] = [
-            'sign' => $sign,
-            'coef' => $coef,
-            'degree' => $degree,
-        ];
+        if (!empty($term_array_reduced[$current_degree])) {
+          $old_coef_signed = $term_array_reduced[$current_degree]['coef'] * $term_array_reduced[$current_degree]['sign'];
+          
+          $new_coef_signed = $old_coef_signed + $current_coef * $current_sign;
+          
+          if ($new_coef_signed < 0) {
+            $current_sign = -1;
+            $new_coef_signed *= -1;
+          }
+          else {
+            $current_sign = 1;
+          }
+          
+          $term_array_reduced[$current_degree]['coef'] = $new_coef_signed;
+  
+          $term_array_reduced[$current_degree]['sign'] = $current_sign;
+  
+          $test = 1;
+        }
+        else {
+          $term_array_reduced[$current_degree] = [
+            'sign' => $current_sign,
+            'coef' => $current_coef,
+            'degree' => $current_degree,
+          ];
+        }
+        
     }
 
-    return $term_arr;
+    return $term_array_reduced;
 }
 
 
