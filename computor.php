@@ -15,12 +15,19 @@ $poly = [
 // echo (int) $poly["sign"] *  (float) $poly["coef"];
 
 // >>> This section should be deleted!!! >>>
-$poly = "3+5 * X - 4*X^2+9666+.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 +3x+x+x+3x+x^+3x+4+5";
+$poly = "0x+5 * X - 4*X^2+9666+.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 +3x+x+x+3x+x^+3x+4+5";
 
 $argv = $poly;
 
 // <<< This section should be deleted!!! <<<
 
+/**
+ * Check argv from user along with equation correctness.
+ *
+ * @param $argv
+ *
+ * @return bool
+ */
 function argv_has_errors($argv) {
 
     $error_message = '';
@@ -85,14 +92,16 @@ if (!argv_has_errors($argv)) {
     $poly_left = $poly_exploded[0];
     $poly_right = $poly_exploded[1];
 
-//    $left_terms = create_poly_array($poly_left);
+    $left_terms = create_poly_array($poly_left);
     $right_terms = create_poly_array($poly_right);
 
     $test = 1;
 }
 
 function create_poly_array($poly) {
+  
     $terms_array = [];
+    
     preg_match_all(TERM_REGULAR_PATTERN, $poly,$terms_array);
 
     $terms_array = array_filter($terms_array[0]);
@@ -100,6 +109,7 @@ function create_poly_array($poly) {
     $term_arr = [];
 
     foreach ($terms_array as $term) {
+        // Default values
         $sign = 1;
         $coef = 0;
         $degree = 0;
@@ -110,15 +120,20 @@ function create_poly_array($poly) {
         }
 
         // Define number
-        preg_match('/(\d+)?\.?\d+/', $term, $matched_number);
+        preg_match('/(\d+)?\.?\d+/', $term, $matched_number); // searching for >>>3.3<<< * X
         $coef = empty($matched_number) ? 1 : (float) $matched_number[0];
 
         //Define degree
-        preg_match('/X[\^]?(\d+)?/', $term,$matched_degree);
+        preg_match('/X[\^]?(\d+)?/', $term,$matched_degree); // searching for X ^ >>>2<<<
+        
         if (!empty($matched_degree)) {
-            $degree = isset($matched_degree[1]) ? $matched_degree[1] : 1;
+            $degree = isset($matched_degree[1]) ? (int) $matched_degree[1] : 1;
         }
 
+        if ($coef == 0) {
+          continue;
+        }
+        
         $term_arr[] = [
             'sign' => $sign,
             'coef' => $coef,
