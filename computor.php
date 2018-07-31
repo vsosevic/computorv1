@@ -2,20 +2,8 @@
 
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
-// if (!has_args_errors($argv)) {
-// 	echo "no errors";
-// }
-// var_dump($argv);
-$poly = [
-	'sign' => -1,
-	'coef' => 1.3,
-	'degree' => 2,
-];
-
-// echo (int) $poly["sign"] *  (float) $poly["coef"];
-
 // >>> This section should be deleted!!! >>>
-$poly = "0x+5 * X - 4*X^2+9666 -.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 -3x+x+x+3x+x^-3x+4-5";
+$poly = "0x+5 * X + 4*X^2+9666 +.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 -3x+x+x+3x+x^-3x+4-5";
 
 $argv = $poly;
 
@@ -96,8 +84,6 @@ if (!argv_has_errors($argv)) {
     $right_terms = create_reduced_poly_array($poly_right);
   
   negate_terms_array($right_terms);
-
-    $test = 1;
 }
 
 function create_reduced_poly_array($poly) {
@@ -111,18 +97,11 @@ function create_reduced_poly_array($poly) {
   $term_array_reduced = [];
 
     foreach ($terms_array_raw as $term) {
-        // Default values
-        $current_sign = 1;
         $current_coef = 0;
         $current_degree = 0;
 
-        // Define sign
-        if (strpos($term, '-') !== false) {
-            $current_sign = -1;
-        }
-
         // Define number
-        preg_match('/(\d+)?\.?\d+/', $term, $matched_number); // searching for >>>3.3<<< * X
+        preg_match('/[\-]?[\d+]?\.?\d+/', $term, $matched_number); // searching for >>>3.3<<< * X
         $current_coef = empty($matched_number) ? 1 : (float) $matched_number[0];
 
         //Define degree
@@ -139,27 +118,10 @@ function create_reduced_poly_array($poly) {
         
         // Reduced form or just new array.
         if (!empty($term_array_reduced[$current_degree])) {
-          $old_coef_signed = $term_array_reduced[$current_degree]['coef'] * $term_array_reduced[$current_degree]['sign'];
-          
-          $new_coef_signed = $old_coef_signed + $current_coef * $current_sign;
-          
-          if ($new_coef_signed < 0) {
-            $current_sign = -1;
-            $new_coef_signed *= -1;
-          }
-          else {
-            $current_sign = 1;
-          }
-          
-          $term_array_reduced[$current_degree]['coef'] = $new_coef_signed;
-  
-          $term_array_reduced[$current_degree]['sign'] = $current_sign;
-  
-          $test = 1;
+          $term_array_reduced[$current_degree]['coef'] += $current_coef;
         }
         else {
           $term_array_reduced[$current_degree] = [
-            'sign' => $current_sign,
             'coef' => $current_coef,
             'degree' => $current_degree,
           ];
