@@ -167,18 +167,23 @@ function add_two_terms_arrays($left_terms, $right_terms) {
     return $resulting_array;
 }
 
-function print_terms_array($terms_array) {
+function print_terms_array($terms_array, $print_like_equation = false) {
     foreach ($terms_array as $degree => $term) {
         switch ($degree) {
             case 0:
-                echo $term['coef'];
+                echo $term['coef'] . " ";
                 break;
             case 1:
-                printf("%d * X", [$term['coef']]);
+                if ($term['coef'] >= 0) { echo '+';};
+                printf("%dx ", $term['coef']);
                 break;
             case 2:
-                printf("%d * X^2", [$term['coef']]);
+                if ($term['coef'] >= 0) { echo '+';};
+                printf("%dx^2 ", $term['coef']);
                 break;
         }
+    }
+    if ($print_like_equation) {
+        echo ' = 0';
     }
 }
