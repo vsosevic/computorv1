@@ -3,7 +3,7 @@
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
 // >>> This section should be deleted!!! >>>
-$poly = "0x+5 * X + 4*X^2+9666 +.663 * x^2        =0*X^0+x-3*x+3*x^1+6+ 4*x^1 -3x+x+x+3x+x^-3x+4-5";
+$poly = "5 - 3x + 10x^2    = 3 -3x + 5x^2";
 
 $argv = $poly;
 
@@ -38,7 +38,7 @@ function argv_has_errors($argv) {
 	// One side of equation has no arguments
 	$exploded_parts = explode('=', $poly);
 
-	if (empty(trim($exploded_parts[0])) || empty(trim($exploded_parts[1]))) {
+	if (!isset($exploded_parts[0]) || !isset($exploded_parts[1])) {
         $error_message .= "Equation should contain smth on each side." . PHP_EOL;
 	}
 
@@ -83,7 +83,8 @@ if (!argv_has_errors($argv)) {
     $left_terms = create_reduced_poly_array($poly_left);
     $right_terms = create_reduced_poly_array($poly_right);
   
-  negate_terms_array($right_terms);
+    $reduced_leftside_terms_array = add_two_terms_arrays($left_terms, $right_terms);
+
 }
 
 function create_reduced_poly_array($poly) {
@@ -129,13 +130,41 @@ function create_reduced_poly_array($poly) {
         
     }
 
+    ksort($term_array_reduced);
+
     return $term_array_reduced;
 }
 
 function negate_terms_array(&$terms_array) {
-  foreach ($terms_array as &$term) {
-    $term['coef'] *= -1;
-  }
+    if (!empty($terms_array)) {
+        foreach ($terms_array as &$term) {
+            $term['coef'] *= -1;
+        }
+    }
 }
 
+function add_two_terms_arrays($left_terms, $right_terms) {
+    $resulting_array = [];
 
+    negate_terms_array($right_terms);
+
+    for ($degree = 0; $degree <=2; $degree++) {
+        $left_terms_coef = empty($left_terms[$degree]) ? 0 : $left_terms[$degree]['coef'];
+        $right_terms_coef = empty($right_terms[$degree]) ? 0 : $right_terms[$degree]['coef'];
+
+        $resulting_coef = $left_terms_coef + $right_terms_coef;
+
+        if ($resulting_coef != 0) {
+            $resulting_array[$degree] = [
+                'coef' => $resulting_coef,
+                'degree' => $degree,
+            ];
+        }
+    }
+
+    return $resulting_array;
+}
+
+function print_terms_array($terms_array) {
+    
+}
