@@ -134,7 +134,7 @@ function create_reduced_poly_array($poly) {
 
 function negate_terms_array(&$terms_array) {
   foreach ($terms_array as &$term) {
-    $term['sign'] *= -1;
+    $term['coef'] *= -1;
   }
 }
 
