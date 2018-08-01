@@ -3,7 +3,7 @@
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
 // >>> This section should be deleted!!! >>>
-$poly = "5 - 3x + 10x^2    = 3 -3x + 5x^2";
+$poly = "5 - 3x + 10x^2    = 0";
 
 $argv = $poly;
 
@@ -84,6 +84,8 @@ if (!argv_has_errors($argv)) {
     $right_terms = create_reduced_poly_array($poly_right);
   
     $reduced_leftside_terms_array = add_two_terms_arrays($left_terms, $right_terms);
+
+    print_terms_array($reduced_leftside_terms_array);
 
 }
 
@@ -166,5 +168,17 @@ function add_two_terms_arrays($left_terms, $right_terms) {
 }
 
 function print_terms_array($terms_array) {
-    
+    foreach ($terms_array as $degree => $term) {
+        switch ($degree) {
+            case 0:
+                echo $term['coef'];
+                break;
+            case 1:
+                printf("%d * X", [$term['coef']]);
+                break;
+            case 2:
+                printf("%d * X^2", [$term['coef']]);
+                break;
+        }
+    }
 }
