@@ -4,7 +4,7 @@ const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d
 
 // >>> This section should be deleted!!! >>>
 // TODO: handle '0 = 0' equation.
-$poly = "3x    =3x";
+$poly = "4x    =3x";
 
 $argv = $poly;
 
@@ -187,4 +187,9 @@ function print_terms_array($terms_array, $print_like_equation = false) {
     if ($print_like_equation) {
         echo ' = 0';
     }
+}
+
+// TODO: implement solve_reduced_equation() function
+function solve_reduced_equation($reduced_leftside_terms_array) {
+
 }
