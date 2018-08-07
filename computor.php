@@ -4,7 +4,7 @@ const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d
 
 // >>> This section should be deleted!!! >>>
 // TODO: handle '0 = 0' equation.
-$poly = "4x    =3x";
+$poly = "4x + 3x^2 +4  5x     =3x - 5";
 
 $argv = $poly;
 
@@ -75,7 +75,7 @@ function argv_has_errors($argv) {
 }
 
 if (!argv_has_errors($argv)) {
-    $poly = strtoupper(str_replace(' ', '', $argv)); // $argv[1] - in the future for command line
+    $poly = strtoupper($argv); // $argv[1] - in the future for command line
     $poly_exploded = explode('=', $poly);
 
     $poly_left = $poly_exploded[0];
@@ -94,9 +94,9 @@ function create_reduced_poly_array($poly) {
 
     $terms_array_raw = [];
 
-    preg_match_all(TERM_REGULAR_PATTERN, $poly,$terms_array_raw);
+    preg_match_all(TERM_REGULAR_PATTERN, $poly, $terms_array_raw);
 
-    $terms_array_raw = array_filter($terms_array_raw[0]);
+    $terms_array_raw = array_filter(array_map('trim',$terms_array_raw[0]));
 
     $term_array_reduced = [];
 
