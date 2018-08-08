@@ -3,8 +3,7 @@
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
 // >>> This section should be deleted!!! >>>
-// TODO: handle 'x^2' properly.
-$poly = "4x =0";
+$poly = "4x^3 + 5 + x + x^6 =0";
 
 $argv = $poly;
 
@@ -146,12 +145,16 @@ function negate_terms_array(&$terms_array) {
     }
 }
 
+// TODO: make it work for degree more than 2
 function add_two_terms_arrays($left_terms, $right_terms) {
     $resulting_array = [];
 
     negate_terms_array($right_terms);
 
-    for ($degree = 0; $degree <=2; $degree++) {
+    //Get all degrees from two arrays
+    $degrees_array = array_unique(array_merge(array_keys($left_terms), array_keys($right_terms)));
+
+    foreach ($degrees_array as $degree) {
         $left_terms_coef = empty($left_terms[$degree]) ? 0 : $left_terms[$degree]['coef'];
         $right_terms_coef = empty($right_terms[$degree]) ? 0 : $right_terms[$degree]['coef'];
 
@@ -187,10 +190,10 @@ function print_terms_array($terms_array, $print_like_equation = false) {
                 if ($term['coef'] == 1) { $term['coef'] = '';};
                 $output .= $term['coef'] . 'x';
                 break;
-            case 2:
+            default:
                 if ($term['coef'] >= 0) { $output .= '+';};
                 if ($term['coef'] == 1) { $term['coef'] = '';};
-                $output .= $term['coef'] . 'x^2';
+                $output .= $term['coef'] . 'x^' . $term['degree'];
                 break;
         }
     }
