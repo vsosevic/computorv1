@@ -3,8 +3,8 @@
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
 // >>> This section should be deleted!!! >>>
-// TODO: handle '0 = 0' equation.
-$poly = "4x + 3x^2 +4  5x     =3x - 5";
+// TODO: handle 'x^2' properly.
+$poly = "254523123123123123123123454x^2 =0";
 
 $argv = $poly;
 
@@ -169,24 +169,36 @@ function add_two_terms_arrays($left_terms, $right_terms) {
 }
 
 function print_terms_array($terms_array, $print_like_equation = false) {
+    if (empty($terms_array)) {
+        echo '0 = 0' . PHP_EOL . 'All the real numbers are solution';
+
+        return;
+    }
+
+    $output = 'Reduced form: ';
+
     foreach ($terms_array as $degree => $term) {
         switch ($degree) {
             case 0:
-                echo $term['coef'] . " ";
+                $output .= $term['coef'] . " ";
                 break;
             case 1:
-                if ($term['coef'] >= 0) { echo '+';};
-                printf("%dx ", $term['coef']);
+                if ($term['coef'] >= 0) { $output .= '+';};
+                if ($term['coef'] == 1) { $term['coef'] = '';};
+                $output .= $term['coef'] . 'x';
                 break;
             case 2:
-                if ($term['coef'] >= 0) { echo '+';};
-                printf("%dx^2 ", $term['coef']);
+                if ($term['coef'] >= 0) { $output .= '+';};
+                if ($term['coef'] == 1) { $term['coef'] = '';};
+                $output .= $term['coef'] . 'x^2';
                 break;
         }
     }
     if ($print_like_equation) {
-        echo ' = 0';
+        $output .= ' = 0';
     }
+
+    echo $output;
 }
 
 // TODO: implement solve_reduced_equation() function
