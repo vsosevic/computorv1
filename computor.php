@@ -4,7 +4,7 @@ const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d
 
 // >>> This section should be deleted!!! >>>
 // TODO: handle 'x^2' properly.
-$poly = "254523123123123123123123454x^2 =0";
+$poly = "4x =0";
 
 $argv = $poly;
 
@@ -105,7 +105,7 @@ function create_reduced_poly_array($poly) {
         $current_degree = 0;
 
         // Define number
-        preg_match('/[\-]?[\d+]?\.?\d+/', $term, $matched_number); // searching for >>>3.3<<< * X
+        preg_match('/[-]?\d+\.\d+|[-]?[\.]?\d+(?=X)/', $term, $matched_number); // searching for >>>3.3<<< * X
         $current_coef = empty($matched_number) ? 1 : (float) $matched_number[0];
 
         //Define degree
