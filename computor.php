@@ -3,11 +3,29 @@
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
 // >>> This section should be deleted!!! >>>
-$poly = "4x^3 + 5 + x + x^6 =0";
+$poly = "4x^2 + 5 + x + x^2 =0 + 3x^2";
+$poly = "5 + 43434 =0";
 
 $argv = $poly;
 
 // <<< This section should be deleted!!! <<<
+
+if (!argv_has_errors($argv)) {
+    $poly = strtoupper($argv); // $argv[1] - in the future for command line
+    $poly_exploded = explode('=', $poly);
+
+    $poly_left = $poly_exploded[0];
+    $poly_right = $poly_exploded[1];
+
+    $left_terms = create_reduced_poly_array($poly_left);
+    $right_terms = create_reduced_poly_array($poly_right);
+
+    $reduced_leftside_terms_array = add_two_terms_arrays($left_terms, $right_terms);
+
+    print_terms_array($reduced_leftside_terms_array, true);
+    solve_poly_and_print($reduced_leftside_terms_array);
+
+}
 
 /**
  * Check argv from user along with equation correctness.
@@ -73,22 +91,6 @@ function argv_has_errors($argv) {
     return FALSE;
 }
 
-if (!argv_has_errors($argv)) {
-    $poly = strtoupper($argv); // $argv[1] - in the future for command line
-    $poly_exploded = explode('=', $poly);
-
-    $poly_left = $poly_exploded[0];
-    $poly_right = $poly_exploded[1];
-
-    $left_terms = create_reduced_poly_array($poly_left);
-    $right_terms = create_reduced_poly_array($poly_right);
-
-    $reduced_leftside_terms_array = add_two_terms_arrays($left_terms, $right_terms);
-
-    print_terms_array($reduced_leftside_terms_array, true);
-
-}
-
 function create_reduced_poly_array($poly) {
 
     $terms_array_raw = [];
@@ -104,7 +106,7 @@ function create_reduced_poly_array($poly) {
         $current_degree = 0;
 
         // Define number
-        preg_match('/[-]?\d+\.\d+|[-]?[\.]?\d+(?=X)/', $term, $matched_number); // searching for >>>3.3<<< * X
+        preg_match('/[\-]?\d+\.\d+|(?=^)[\-]?\d+/', $term, $matched_number); // searching for >>>3.3<<< * X
         $current_coef = empty($matched_number) ? 1 : (float) $matched_number[0];
 
         //Define degree
@@ -145,7 +147,6 @@ function negate_terms_array(&$terms_array) {
     }
 }
 
-// TODO: make it work for degree more than 2
 function add_two_terms_arrays($left_terms, $right_terms) {
     $resulting_array = [];
 
@@ -173,8 +174,7 @@ function add_two_terms_arrays($left_terms, $right_terms) {
 
 function print_terms_array($terms_array, $print_like_equation = false) {
     if (empty($terms_array)) {
-        echo '0 = 0' . PHP_EOL . 'All the real numbers are solution';
-
+        echo '0 * X^0 = 0' . PHP_EOL . 'All the real numbers are solution';
         return;
     }
 
@@ -198,13 +198,41 @@ function print_terms_array($terms_array, $print_like_equation = false) {
         }
     }
     if ($print_like_equation) {
-        $output .= ' = 0';
+        $output .= ' = 0' . PHP_EOL;
     }
 
     echo $output;
 }
 
 // TODO: implement solve_reduced_equation() function
-function solve_reduced_equation($reduced_leftside_terms_array) {
+function solve_poly_and_print($reduced_leftside_terms_array) {
+    if (empty($reduced_leftside_terms_array)) {
+        return;
+    }
+
+    $max_poly_degree = max(array_keys($reduced_leftside_terms_array));
+
+    if ($max_poly_degree > 2) {
+        echo "Polynomial degree: $max_poly_degree" . PHP_EOL . "The polynomial degree is stricly greater than 2, I can't solve.";
+        return;
+    }
+
+    // Situation like '5=0'. No solutions.
+    if ($max_poly_degree == 0 && !empty($reduced_leftside_terms_array)) {
+        echo "The equation is wrong. No solutions.";
+        return;
+    }
+
+    echo "Polynomial degree: $max_poly_degree" . PHP_EOL;
+    echo "The solution is:" . PHP_EOL;
+
+    if ($max_poly_degree == 1) {
+        $negated_coef = !empty($reduced_leftside_terms_array[0]['coef']) ? $reduced_leftside_terms_array[0]['coef'] * -1 : 0;
+
+        $solution = $negated_coef / $reduced_leftside_terms_array[1]['coef'];
+
+        echo $solution;
+        return;
+    }
 
 }
