@@ -4,7 +4,7 @@ const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d
 
 // >>> This section should be deleted!!! >>>
 $poly = "4x^2 + 5 + x + x^2 =0 + 3x^2";
-$poly = "5 + 43434 =0";
+$poly = "2x^2 =18";
 
 $argv = $poly;
 
@@ -97,7 +97,13 @@ function create_reduced_poly_array($poly) {
 
     preg_match_all(TERM_REGULAR_PATTERN, $poly, $terms_array_raw);
 
-    $terms_array_raw = array_filter(array_map('trim',$terms_array_raw[0]));
+    $clean_value_func = function($value) {
+        $value = str_replace('+', '', $value);
+        $value = str_replace(' ', '', $value);
+        return $value;
+    };
+
+    $terms_array_raw = array_filter(array_map($clean_value_func, $terms_array_raw[0]));
 
     $term_array_reduced = [];
 
@@ -204,7 +210,7 @@ function print_terms_array($terms_array, $print_like_equation = false) {
     echo $output;
 }
 
-// TODO: implement solve_reduced_equation() function
+// TODO: solve equation for degree = 2
 function solve_poly_and_print($reduced_leftside_terms_array) {
     if (empty($reduced_leftside_terms_array)) {
         return;
@@ -225,14 +231,24 @@ function solve_poly_and_print($reduced_leftside_terms_array) {
 
     echo "Polynomial degree: $max_poly_degree" . PHP_EOL;
     echo "The solution is:" . PHP_EOL;
+    $solution = '';
 
-    if ($max_poly_degree == 1) {
-        $negated_coef = !empty($reduced_leftside_terms_array[0]['coef']) ? $reduced_leftside_terms_array[0]['coef'] * -1 : 0;
+    switch ($max_poly_degree) {
+        // Case with '5x - 10 = 0'
+        case 1:
+            $negated_coef = !empty($reduced_leftside_terms_array[0]['coef']) ? $reduced_leftside_terms_array[0]['coef'] * -1 : 0;
+            $solution = $negated_coef / $reduced_leftside_terms_array[1]['coef'];
+            break;
+        // Case with 'x^2 - 9 = 0'
+        case 2 && empty($reduced_leftside_terms_array[1]):
+            $negated_coef = !empty($reduced_leftside_terms_array[0]['coef']) ? $reduced_leftside_terms_array[0]['coef'] * -1 : 0;
+            $solution = sqrt($negated_coef / $reduced_leftside_terms_array[2]['coef']);
+            break;
+        // Case with 'x^2 -2x +5 = 0'
+        case 2:
 
-        $solution = $negated_coef / $reduced_leftside_terms_array[1]['coef'];
-
-        echo $solution;
-        return;
     }
+
+    echo $solution;
 
 }
