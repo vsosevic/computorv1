@@ -3,7 +3,7 @@
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
 // >>> This section should be deleted!!! >>>
-$poly = "2x^2 + 4x + 2 = 0";
+$poly = "2x^2 + 4x + 6 = 0";
 //$poly = "2x^2 =18";
 
 $argv = $poly;
@@ -264,7 +264,11 @@ function solve_poly_and_print($reduced_leftside_terms_array) {
                 $solution .= -$b / (2 * $a);
             }
             else {
-                
+                $x1 = -$b / (2 * $a);
+                $x2 = sqrt(-$discriminant) / (2 * $a);
+
+                echo "Discriminant is strictly negative. The two complexes solutions are :" . PHP_EOL;
+                $solution .= "$x1 - $x2 * i" . PHP_EOL . "$x1 + $x2 * i" . PHP_EOL;
             }
     }
 
