@@ -3,8 +3,8 @@
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
 // >>> This section should be deleted!!! >>>
-$poly = "4x^2 + 5 + x + x^2 =0 + 3x^2";
-$poly = "2x^2 =18";
+$poly = "2x^2 + 4x + 2 = 0";
+//$poly = "2x^2 =18";
 
 $argv = $poly;
 
@@ -246,7 +246,26 @@ function solve_poly_and_print($reduced_leftside_terms_array) {
             break;
         // Case with 'x^2 -2x +5 = 0'
         case 2:
+            $a = empty($reduced_leftside_terms_array[2]['coef']) ? 0 : $reduced_leftside_terms_array[2]['coef'];
+            $b = empty($reduced_leftside_terms_array[1]['coef']) ? 0 : $reduced_leftside_terms_array[1]['coef'];
+            $c = empty($reduced_leftside_terms_array[0]['coef']) ? 0 : $reduced_leftside_terms_array[0]['coef'];
 
+            $discriminant = pow($b, 2) - 4 * $a * $c;
+
+            if ($discriminant > 0) {
+                echo "Discriminant is strictly positive, the two solutions are:" . PHP_EOL;
+                $x1 = (-$b + sqrt($discriminant)) / (2 * $a);
+                $x2 = (-$b - sqrt($discriminant)) / (2 * $a);
+
+                $solution .= $x1 . PHP_EOL . $x2 . PHP_EOL;
+            }
+            elseif ($discriminant == 0) {
+                echo "Discriminant is equal to 0, the solution is:" . PHP_EOL;
+                $solution .= -$b / (2 * $a);
+            }
+            else {
+                
+            }
     }
 
     echo $solution;
