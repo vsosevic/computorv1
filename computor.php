@@ -52,8 +52,6 @@ function argv_has_errors($argv) {
     $exploded_parts = explode('=', $poly);
     $exploded_parts = array_map('trim',$exploded_parts);
     
-//    var_dump($exploded_parts); die();
-    
     if ($exploded_parts[0] == '' || $exploded_parts[1] == '') {
         $error_message .= "Equation should contain smth on each side.";
     }
