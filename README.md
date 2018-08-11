@@ -7,9 +7,9 @@ Solver parses the following input from the command line:
 
 Also it can parse the equation in a much easier look:
 
-4x^2 - 4x + 5 = 0
-x^2 - 9 = 0
-5x + 10 = 0
+4x^2 - 4x + 5 = 0;
+x^2 - 9 = 0;
+5x + 10 = 0;
 ...
 
 It's able to solve equation with negative discriminant and take a square root out of negative numbers (x^2 = -9).
