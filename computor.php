@@ -195,11 +195,13 @@ function print_terms_array($terms_array, $print_like_equation = false) {
             case 1:
                 if ($term['coef'] >= 0) { $output .= '+';};
                 if ($term['coef'] == 1) { $term['coef'] = '';};
+                if ($term['coef'] == -1) { $term['coef'] = '-';};
                 $output .= $term['coef'] . 'x';
                 break;
             default:
                 if ($term['coef'] >= 0) { $output .= '+';};
                 if ($term['coef'] == 1) { $term['coef'] = '';};
+                if ($term['coef'] == -1) { $term['coef'] = '-';};
                 $output .= $term['coef'] . 'x^' . $term['degree'];
                 break;
         }
@@ -219,7 +221,7 @@ function solve_poly_and_print($reduced_leftside_terms_array) {
     $max_poly_degree = max(array_keys($reduced_leftside_terms_array));
 
     if ($max_poly_degree > 2) {
-        echo "Polynomial degree: $max_poly_degree" . PHP_EOL . "The polynomial degree is stricly greater than 2, I can't solve.";
+        echo "Polynomial degree: $max_poly_degree" . PHP_EOL . "The polynomial degree is stricly greater than 2, I can't solve." . PHP_EOL;
         return;
     }
 
