@@ -2,16 +2,8 @@
 
 const TERM_REGULAR_PATTERN = '/([+|-]?([ ]?\d*[\.]?\d*[ ]?(\*)?[ ]?)?(([x|X]\^\d*[ ]?)|([x|X])))|([+|-]?[ ]?\d*)/';
 
-// >>> This section should be deleted!!! >>>
-$poly = "2x^2 + 4x + 6 = 0";
-//$poly = "2x^2 =18";
-
-$argv = $poly;
-
-// <<< This section should be deleted!!! <<<
-
 if (!argv_has_errors($argv)) {
-    $poly = strtoupper($argv); // $argv[1] - in the future for command line
+    $poly = strtoupper($argv[1]);
     $poly_exploded = explode('=', $poly);
 
     $poly_left = $poly_exploded[0];
@@ -35,29 +27,34 @@ if (!argv_has_errors($argv)) {
  * @return bool
  */
 function argv_has_errors($argv) {
-
+  
     $error_message = '';
     // More than 1 argv supplied
-//	if (count($argv) > 2 || count($argv) < 2) {
-//		echo "Too many or too few arguments" . PHP_EOL;
-//		echo "Usage: php computor.php \"equation\"" . PHP_EOL;
-//
-//		return TRUE;
-//	}
+    if (count($argv) > 2 || count($argv) < 2) {
+        echo "\e[0;31;5m";
+        echo "Too many or too few arguments" . PHP_EOL;
+        echo "Usage: php computor.php \"equation\"" . PHP_EOL;
+        echo "\e[0m";
+  
+      return TRUE;
+    }
 
-    $poly = $argv; // $argv[1] - in the future for command line
+    $poly = $argv[1];
 
     // More than one '=' signs
     $count_equals = substr_count($poly, '=');
     if($count_equals != 1) {
-        $error_message .= "Wrong number of equals. Should be only 1." . PHP_EOL;
+        $error_message .= "Wrong number of equals. Should be only 1.";
     }
 
     // One side of equation has no arguments
     $exploded_parts = explode('=', $poly);
-
-    if (!isset($exploded_parts[0]) || !isset($exploded_parts[1])) {
-        $error_message .= "Equation should contain smth on each side." . PHP_EOL;
+    $exploded_parts = array_map('trim',$exploded_parts);
+    
+//    var_dump($exploded_parts); die();
+    
+    if ($exploded_parts[0] == '' || $exploded_parts[1] == '') {
+        $error_message .= "Equation should contain smth on each side.";
     }
 
     // Formatting is wrong.
@@ -65,11 +62,11 @@ function argv_has_errors($argv) {
     $right_part_cleaned = trim(preg_replace(TERM_REGULAR_PATTERN, '',$exploded_parts[1]));
 
     if (!empty($left_part_cleaned) || !empty($right_part_cleaned)) {
-        $error_message .= "Something wrong with equation." . PHP_EOL;
+        $error_message .= "Something wrong with equation.";
     }
 
     if (!empty($error_message)) {
-        echo $error_message;
+        echo "\e[0;31;5m" . $error_message . "\e[0m"  . PHP_EOL;
 
         return TRUE;
     }
@@ -81,9 +78,8 @@ function argv_has_errors($argv) {
     $max_poly_degree = !empty($max_poly_degree) ? max($poly_degrees_clean) : 0;
 
     if ($max_poly_degree > 2) {
-        // TODO: print Reduced form
         echo "Polynomial degree: $max_poly_degree" . PHP_EOL;
-        echo "The polynomial degree is stricly greater than 2. I can't solve." . PHP_EOL;
+        echo "\e[0;31;5m" . "The polynomial degree is stricly greater than 2. I can't solve." . "\e[0m" . PHP_EOL;
 
         return TRUE;
     }
@@ -94,6 +90,7 @@ function argv_has_errors($argv) {
 function create_reduced_poly_array($poly) {
 
     $terms_array_raw = [];
+    $poly = str_replace(' ', '', $poly);
 
     preg_match_all(TERM_REGULAR_PATTERN, $poly, $terms_array_raw);
 
@@ -108,9 +105,11 @@ function create_reduced_poly_array($poly) {
     $term_array_reduced = [];
 
     foreach ($terms_array_raw as $term) {
-        $current_coef = 0;
         $current_degree = 0;
 
+        //Workaround for the case "-x" to determine "-1" coef.
+        $term = str_replace('-X', '-1X', $term);
+      
         // Define number
         preg_match('/[\-]?\d+\.\d+|(?=^)[\-]?\d+/', $term, $matched_number); // searching for >>>3.3<<< * X
         $current_coef = empty($matched_number) ? 1 : (float) $matched_number[0];
@@ -174,13 +173,15 @@ function add_two_terms_arrays($left_terms, $right_terms) {
             ];
         }
     }
-
+  
+    ksort($resulting_array);
+    
     return $resulting_array;
 }
 
 function print_terms_array($terms_array, $print_like_equation = false) {
     if (empty($terms_array)) {
-        echo '0 * X^0 = 0' . PHP_EOL . 'All the real numbers are solution';
+        echo '0 * X^0 = 0' . PHP_EOL . 'All the real numbers are solution' . PHP_EOL;
         return;
     }
 
@@ -189,7 +190,7 @@ function print_terms_array($terms_array, $print_like_equation = false) {
     foreach ($terms_array as $degree => $term) {
         switch ($degree) {
             case 0:
-                $output .= $term['coef'] . " ";
+                $output .= $term['coef'];
                 break;
             case 1:
                 if ($term['coef'] >= 0) { $output .= '+';};
@@ -207,10 +208,9 @@ function print_terms_array($terms_array, $print_like_equation = false) {
         $output .= ' = 0' . PHP_EOL;
     }
 
-    echo $output;
+    echo "\e[0;32;5m" . $output . "\e[0m";
 }
 
-// TODO: solve equation for degree = 2
 function solve_poly_and_print($reduced_leftside_terms_array) {
     if (empty($reduced_leftside_terms_array)) {
         return;
@@ -225,24 +225,34 @@ function solve_poly_and_print($reduced_leftside_terms_array) {
 
     // Situation like '5=0'. No solutions.
     if ($max_poly_degree == 0 && !empty($reduced_leftside_terms_array)) {
-        echo "The equation is wrong. No solutions.";
+        echo "The equation is wrong. No solutions." . PHP_EOL;
         return;
     }
 
     echo "Polynomial degree: $max_poly_degree" . PHP_EOL;
-    echo "The solution is:" . PHP_EOL;
     $solution = '';
 
     switch ($max_poly_degree) {
         // Case with '5x - 10 = 0'
         case 1:
+            echo "The solution is:" . PHP_EOL;
             $negated_coef = !empty($reduced_leftside_terms_array[0]['coef']) ? $reduced_leftside_terms_array[0]['coef'] * -1 : 0;
-            $solution = $negated_coef / $reduced_leftside_terms_array[1]['coef'];
+            $solution .= 'x = ' . $negated_coef / $reduced_leftside_terms_array[1]['coef'];
             break;
         // Case with 'x^2 - 9 = 0'
         case 2 && empty($reduced_leftside_terms_array[1]):
+            echo "The solution is:" . PHP_EOL;
             $negated_coef = !empty($reduced_leftside_terms_array[0]['coef']) ? $reduced_leftside_terms_array[0]['coef'] * -1 : 0;
-            $solution = sqrt($negated_coef / $reduced_leftside_terms_array[2]['coef']);
+            
+            $division_result = $negated_coef / $reduced_leftside_terms_array[2]['coef'];
+            
+            if ($division_result < 0) {
+              $solution .= "x1 = " . sqrt(-$division_result) . " * i" . PHP_EOL;
+              $solution .= "x2 = -" . sqrt(-$division_result) . " * i" . PHP_EOL;
+            }
+            else {
+                $solution .= 'x = ' . sqrt($division_result);
+            }
             break;
         // Case with 'x^2 -2x +5 = 0'
         case 2:
@@ -257,21 +267,21 @@ function solve_poly_and_print($reduced_leftside_terms_array) {
                 $x1 = (-$b + sqrt($discriminant)) / (2 * $a);
                 $x2 = (-$b - sqrt($discriminant)) / (2 * $a);
 
-                $solution .= $x1 . PHP_EOL . $x2 . PHP_EOL;
+                $solution .= "x1 = $x1" . PHP_EOL . "x2 = $x2";
             }
             elseif ($discriminant == 0) {
                 echo "Discriminant is equal to 0, the solution is:" . PHP_EOL;
-                $solution .= -$b / (2 * $a);
+                $solution .= 'x = ' . -$b / (2 * $a);
             }
             else {
                 $x1 = -$b / (2 * $a);
                 $x2 = sqrt(-$discriminant) / (2 * $a);
 
-                echo "Discriminant is strictly negative. The two complexes solutions are :" . PHP_EOL;
-                $solution .= "$x1 - $x2 * i" . PHP_EOL . "$x1 + $x2 * i" . PHP_EOL;
+                echo "Discriminant is strictly negative. The two complexes solutions are:" . PHP_EOL;
+                $solution .= "x1 = $x1 - $x2 * i" . PHP_EOL . "x2 = $x1 + $x2 * i";
             }
     }
 
-    echo $solution;
+    echo "\e[0;32;5m" . $solution . "\e[0m"  . PHP_EOL;
 
 }
