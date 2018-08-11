@@ -33,8 +33,9 @@ function argv_has_errors($argv) {
     if (count($argv) > 2 || count($argv) < 2) {
         echo "\e[0;31;5m";
         echo "Too many or too few arguments" . PHP_EOL;
-        echo "Usage: php computor.php \"equation\"" . PHP_EOL;
         echo "\e[0m";
+        echo "Usage: php computor.php \"equation\"" . PHP_EOL;
+        
   
       return TRUE;
     }
